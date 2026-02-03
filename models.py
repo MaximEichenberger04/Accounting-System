@@ -14,10 +14,6 @@ class BalanceSheet():
         self.overdrafts = []
 
     def add_account(self, account):
-        account.check_balance()
-        if account.saldo < 0:
-                self.overdrafts.append(account)
-                return
         if isinstance(account, ActiveAccount):
             if account.account_type == "current":
                 self.current_assets.append(account)
@@ -40,33 +36,39 @@ class BalanceSheet():
             raise ValueError("PassiveAccount type not supported in Balance Sheet: " + account.account_type)
         raise TypeError("Balance Sheet only supports: ActiveAccount or PassiveAccount")
     
-    def add_accounts(self, accounts: list):
-        for account in accounts:
-            account.check_balance()
-            if account.saldo < 0:
-                self.overdrafts.append(account)
-                NewAccount = Overdraft().reclassify(account)
-                self.add_account(account) #account got booked out, saldo = 0
-                if NewAccount is not None:
-                    self.add_account(NewAccount) #add new reclassified account to balance sheet (other side)
-                continue
+    def reclassify_account(self, account):
+        account.check_balance()
+        if account.saldo < 0: #Overdraft -> Reclassify Account
+            new_account = Overdraft().reclassify(account)
 
-            else:
-                self.add_account(account)
-    
+            if new_account is not None:
+                self.add_account(new_account)
+            return
+        self.add_account(account)
+
     def balance(self):
-        self.active = sum(self.current_assets) + sum(self.non_current_assets)
-        self.passive = sum(self.short_term_liabilities) + sum(self.long_term_liabilities) + sum(self.equity)
-        self.earnings = self.active - self.passive
-        if self.active < self.passive:
+        self.non_current_assets = [acc for acc in self.non_current_assets if acc.name != "Verlust"]
+        self.equity = [acc for acc in self.equity if acc.name != "Gewinn"]
+
+        active = ( sum(acc.end_balance() for acc in self.current_assets) + 
+                        sum(acc.end_balance() for acc in self.non_current_assets) )
+        
+        passive = ( sum(acc.end_balance() for acc in self.short_term_liabilities) +
+                         sum(acc.end_balance() for acc in self.long_term_liabilities) + 
+                         sum(acc.end_balance() for acc in self.equity) )
+        
+        earnings = active - passive
+
+        if earnings < 0:
             Verlust = ActiveAccount("Verlust", "non-current")
-        elif self.active >= self.passive:
+            Verlust.inflow(abs(earnings))
+            self.non_current_assets.append(Verlust) #add loss to active side
+        elif earnings > 0:
             Gewinn = PassiveAccount("Gewinn", "equity")
-        BalanceSheet = dict()
-        for section in [self.current_assets, self.non_current_assets, self.short_term_liabilities, self.long_term_liabilities, self.equity]:
-            for account in section:
-                BalanceSheet[account.name] = account.end_balance()
-        return BalanceSheet
+            Gewinn.inflow(earnings)
+            self.equity.append(Gewinn)
+
+        return earnings
 
 class Account(ABC):
     def __init__(self, name: str):
