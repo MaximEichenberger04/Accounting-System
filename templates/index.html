@@ -1,0 +1,28 @@
+<form method="post" action="/add-account">
+  <input name="name" placeholder="Account Name" required>
+
+  <select name="side">
+    <option value="active">Aktivkonto</option>
+    <option value="passive">Passivkonto</option>
+  </select>
+
+  <select name="type">
+    <option value="current">Current</option>
+    <option value="non-current">Non-current</option>
+    <option value="short-term">Short-term</option>
+    <option value="long-term">Long-term</option>
+    <option value="equity">Equity</option>
+  </select>
+
+  <input name="amount" type="number" step="0.01">
+  <select name="flow">
+    <option value="inflow">Inflow</option>
+    <option value="outflow">Outflow</option>
+  </select>
+
+  <button type="submit">Buchen</button>
+
+  <a href="/balance">
+  <button type="button">Bilanz anzeigen</button>
+  </a>
+</form>
