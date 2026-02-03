@@ -24,3 +24,5 @@ This project simply helps with creating a balance sheet. It does **not** generat
 - (Optional in the future)**SQLite** - for storing old accounts/balance sheets in a local database
 
 ## Project Structure
+
+<img width="1189" height="511" alt="image" src="https://github.com/user-attachments/assets/9e47f2b9-1c62-422d-aaa8-fd3e40dedaaf" />
