@@ -47,6 +47,28 @@ class BalanceSheet():
         self.add_account(account)
 
     def balance(self):
+        if not hasattr(self, "_overdraft_checked"):
+            self._overdraft_checked = True
+
+            for acc in list(self.current_assets) + list(self.short_term_liabilities):
+                acc.check_balance()
+
+                if acc.saldo < 0: #check for overdraft
+                    new_acc = Overdraft().reclassify(acc)
+
+                    #remove origin accounts
+                    if isinstance(acc, ActiveAccount) and acc.account_type == "current":
+                        self.current_assets.remove(acc)
+                    elif isinstance(acc, PassiveAccount) and acc.account_type == "short-term":
+                        self.short_term_liabilities.remove(acc)
+
+                    #create new account on other side
+                    if new_acc is not None:
+                        if isinstance(new_acc, PassiveAccount):
+                            self.short_term_liabilities.append(new_acc)
+                        elif isinstance(new_acc, ActiveAccount):
+                            self.current_assets.append(new_acc)
+
         self.non_current_assets = [acc for acc in self.non_current_assets if acc.name != "Verlust"]
         self.equity = [acc for acc in self.equity if acc.name != "Gewinn"]
 
@@ -56,17 +78,19 @@ class BalanceSheet():
         passive = ( sum(acc.end_balance() for acc in self.short_term_liabilities) +
                          sum(acc.end_balance() for acc in self.long_term_liabilities) + 
                          sum(acc.end_balance() for acc in self.equity) )
-        
+                
         earnings = active - passive
+        self.equity = [acc for acc in self.equity if acc.name not in ["Gewinn", "Verlust"]]
+        Jahresergebnis = PassiveAccount("Jahresergebnis", "equity")
 
-        if earnings < 0:
-            Verlust = ActiveAccount("Verlust", "non-current")
-            Verlust.inflow(abs(earnings))
-            self.non_current_assets.append(Verlust) #add loss to active side
-        elif earnings > 0:
-            Gewinn = PassiveAccount("Gewinn", "equity")
-            Gewinn.inflow(earnings)
-            self.equity.append(Gewinn)
+        if earnings > 0:
+            Jahresergebnis.name = "Gewinn"
+            Jahresergebnis.inflow(earnings)
+        elif earnings < 0:
+            Jahresergebnis.name = "Verlust"
+            Jahresergebnis.outflow(abs(earnings))
+        if earnings != 0:
+            self.equity.append(Jahresergebnis)
 
         return earnings
 
@@ -145,7 +169,7 @@ class PassiveAccount(Account):
             return {"status": "overdraft", "saldo": overdraft}
 
 class Overdraft:
-    def __init__(self, annual_rate_pct=5.0, overdraft_fee=25.0):
+    def __init__(self, annual_rate_pct=5.0, overdraft_fee=0.0):
         self.annual_rate_pct = annual_rate_pct
         self.overdraft_fee = overdraft_fee
 
@@ -162,18 +186,12 @@ class Overdraft:
 
         #Case 1: Current Account (Bank) overdraft -> Short-term Account (Bank-Kontokorrent)
         if isinstance(account, ActiveAccount) and account.account_type == "current":
-            account.debit = [0.0] #booking out
-            account.credit = [0.0] #booking out
-
             kontokorrent = PassiveAccount(account.name + "-Kontokorrent", "short-term")
             kontokorrent.inflow(amount + interest + self.overdraft_fee)  #overdraft amount + interest + fee
             return kontokorrent
 
         #Case 2: Short-term Account (Kreditoren) overdraft -> Current Account (Kreditoren-Guthaben)
         if isinstance(account, PassiveAccount) and account.account_type == "short-term":
-            account.debit = [0.0] #booking out
-            account.credit = [0.0] #booking out
-
             guthaben = ActiveAccount(account.name + "-Guthaben", "current")
             guthaben.inflow(amount + interest)  #overpayment amount + interest
             return guthaben

@@ -1,0 +1,48 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.bilanz {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+.seite {
+    padding: 20px;
+}
+.links {
+    border-right: 2px solid #000;
+}
+h2 {
+    text-align: center;
+    margin-top: 0;
+    border-bottom: 1px solid #000;
+    padding-bottom: 8px;
+}
+.section {
+    margin-top: 20px;
+}
+.section-title {
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 6px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+td {
+    padding: 5px 0;
+}
+td.amount {
+    text-align: right;
+}
+.highlight {
+    font-weight: bold;
+    font-style: italic;
+}

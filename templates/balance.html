@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>{{ bs.name }}</title>
+</head>
+
+<body>
+
+<h1>{{ bs.name }}</h1>
+
+<div class="bilanz">
+
+    <!-- SOLL / AKTIVEN -->
+    <div class="seite links">
+        <h2>Soll (Aktiven)</h2>
+
+        <div class="section">
+            <div class="section-title">Umlaufvermögen</div>
+            <table>
+                {% for acc in bs.current_assets %}
+                <tr>
+                    <td>{{ acc.name }}</td>
+                    <td class="amount">{{ "%.2f"|format(acc.end_balance()) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Anlagevermögen</div>
+            <table>
+                {% for acc in bs.non_current_assets %}
+                <tr>
+                    <td>{{ acc.name }}</td>
+                    <td class="amount">{{ "%.2f"|format(acc.end_balance()) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- HABEN / PASSIVEN -->
+    <div class="seite rechts">
+        <h2>Haben (Passiven)</h2>
+
+        <div class="section">
+            <div class="section-title">Kurzfristiges Fremdkapital</div>
+            <table>
+                {% for acc in bs.short_term_liabilities %}
+                <tr>
+                    <td>{{ acc.name }}</td>
+                    <td class="amount">{{ "%.2f"|format(acc.end_balance()) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Langfristiges Fremdkapital</div>
+            <table>
+                {% for acc in bs.long_term_liabilities %}
+                <tr>
+                    <td>{{ acc.name }}</td>
+                    <td class="amount">{{ "%.2f"|format(acc.end_balance()) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Eigenkapital</div>
+            <table>
+                {% for acc in bs.equity %}
+                <tr>
+                    <td class="{% if acc.name in ['Gewinn', 'Verlust'] %}highlight{% endif %}">
+                        {{ acc.name }}
+                    </td>
+                    <td class="amount {% if acc.name in ['Gewinn', 'Verlust'] %}highlight{% endif %}">
+                        {{ "%.2f"|format(acc.end_balance()) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
