@@ -14,6 +14,7 @@ class BalanceSheet():
         self.overdrafts = []
 
     def add_account(self, account):
+        account.check_balance()
         if account.saldo < 0:
                 self.overdrafts.append(account)
                 return
