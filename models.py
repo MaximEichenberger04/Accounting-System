@@ -175,9 +175,12 @@ class BalanceSheet():
             self.add_account(new_account)
 
     def balance(self):
+        if hasattr(self, "_overdraft_checked"): 
+            delattr(self, "_overdraft_checked")
+
         if not hasattr(self, "_overdraft_checked"):
             self._overdraft_checked = True
-            #make a list of all current/short-term accounts
+
             accounts_to_check = list(self.current_assets) + list(self.short_term_liabilities)
             
             for acc in accounts_to_check:
@@ -203,8 +206,7 @@ class BalanceSheet():
                    sum(acc.end_balance() for acc in self.non_current_assets) )
         
         passive = ( sum(acc.end_balance() for acc in self.short_term_liabilities) +
-                    sum(acc.end_balance() for acc in self.long_term_liabilities) + 
-                    sum(acc.end_balance() for acc in self.equity) )
+                    sum(acc.end_balance() for acc in self.long_term_liabilities) )
                 
         earnings = active - passive #assets - (liabilities + equity)
         annual_result = None

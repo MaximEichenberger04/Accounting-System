@@ -5,9 +5,13 @@ app = Flask(__name__)
 
 balance_sheet = BalanceSheet("Balance Sheet 2025")
 
-@app.get("/style.css")
-def style(): #style for frontend
-    return send_from_directory("templates", "style.css")
+@app.get("/index.css")
+def index_css(): #style for frontend
+    return send_from_directory("templates", "index.css")
+
+@app.get("/balance.css")
+def balance_css(): #style for frontend
+    return send_from_directory("templates", "balance.css")
 
 @app.get("/balance")
 def show_balance(): #show final balance sheet
