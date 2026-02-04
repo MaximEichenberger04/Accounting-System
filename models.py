@@ -177,18 +177,21 @@ class BalanceSheet():
     def balance(self):
         if not hasattr(self, "_overdraft_checked"):
             self._overdraft_checked = True
-
-            for acc in list(self.current_assets) + list(self.short_term_liabilities):
+            #make a list of all current/short-term accounts
+            accounts_to_check = list(self.current_assets) + list(self.short_term_liabilities)
+            
+            for acc in accounts_to_check:
                 acc.check_balance()
-
                 if acc.saldo < 0: #check for overdraft
                     new_acc = Overdraft().reclassify(acc)
 
                     #remove origin accounts
                     if isinstance(acc, ActiveAccount) and acc.account_type == "current":
-                        self.current_assets.remove(acc)
+                        if acc in self.current_assets: #Check if still in list
+                            self.current_assets.remove(acc)
                     elif isinstance(acc, PassiveAccount) and acc.account_type == "short-term":
-                        self.short_term_liabilities.remove(acc)
+                        if acc in self.short_term_liabilities: #Check if still in list
+                            self.short_term_liabilities.remove(acc)
 
                     #create new account on other side
                     if new_acc is not None:
@@ -196,28 +199,33 @@ class BalanceSheet():
                             self.short_term_liabilities.append(new_acc)
                         elif isinstance(new_acc, ActiveAccount):
                             self.current_assets.append(new_acc)
-
-        self.non_current_assets = [acc for acc in self.non_current_assets if acc.name != "Verlust"]
-        self.equity = [acc for acc in self.equity if acc.name != "Gewinn"]
-
         active = ( sum(acc.end_balance() for acc in self.current_assets) + 
-                        sum(acc.end_balance() for acc in self.non_current_assets) )
+                   sum(acc.end_balance() for acc in self.non_current_assets) )
         
         passive = ( sum(acc.end_balance() for acc in self.short_term_liabilities) +
-                         sum(acc.end_balance() for acc in self.long_term_liabilities) + 
-                         sum(acc.end_balance() for acc in self.equity) )
+                    sum(acc.end_balance() for acc in self.long_term_liabilities) + 
+                    sum(acc.end_balance() for acc in self.equity) )
                 
-        earnings = active - passive
-        self.equity = [acc for acc in self.equity if acc.name not in ["Gewinn", "Verlust"]]
-        Jahresergebnis = PassiveAccount("Jahresergebnis", "equity")
-
+        earnings = active - passive #assets - (liabilities + equity)
+        annual_result = None
+        for acc in self.equity:
+            if acc.name in ["Gewinn", "Verlust", "annual_result"]:
+                annual_result = acc
+                break
+        if annual_result is None: #if account does not yet exist, create one
+            annual_result = PassiveAccount("annual_result", "equity")
+            self.equity.append(annual_result)
+        
+        #Update the annual_result account based on current earnings (profit and loss)
+        annual_result.credit = [] #reset !!
+        annual_result.debit = [] #reset !!
         if earnings > 0:
-            Jahresergebnis.name = "Gewinn"
-            Jahresergebnis.inflow(earnings)
+            annual_result.name = "Gewinn"
+            annual_result.inflow(earnings)
         elif earnings < 0:
-            Jahresergebnis.name = "Verlust"
-            Jahresergebnis.outflow(abs(earnings))
-        if earnings != 0:
-            self.equity.append(Jahresergebnis)
+            annual_result.name = "Verlust"
+            annual_result.outflow(abs(earnings))
+        else:
+            annual_result.name = "annual_result"
 
         return earnings

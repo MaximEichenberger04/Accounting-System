@@ -1,47 +1,71 @@
-<form method="post" action="/add-account">
-  <input name="name" placeholder="Konto Name" required>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="index.css">
+    <title>Buchhaltungssystem</title>
+</head>
 
-  <select name="side" id="side">
-    <option value="active">Aktivkonto</option>
-    <option value="passive">Passivkonto</option>
-  </select>
+<body>
 
-  <select name="type" id="type">
-    <option value="current">Umlaufvermögen</option>
-    <option value="non-current">Anlagevermögen</option>
-    <option value="short-term">Kurzfristiges Fremdkapital</option>
-    <option value="long-term">Langfristiges Fremdkapital</option>
-    <option value="equity">Eigenkapital</option>
-  </select>
+    <h1>Buchhaltungssystem</h1>
+    
+    <form method="post" action="/add-account">
+        <input name="name" placeholder="Konto Name" required>
 
+        <select name="side" id="side" required>
+            <option value="">-- Kontoseite wählen --</option>
+            <option value="active">Aktivkonto</option>
+            <option value="passive">Passivkonto</option>
+        </select>
 
-  <input name="amount" type="number" step="0.01">
-  <select name="flow">
-    <option value="inflow">Zunahme</option>
-    <option value="outflow">Abnahme</option>
-  </select>
+        <select name="type" id="type" required>
+            <option value="">-- Kontotyp wählen --</option>
+            <option value="current" data-side="active">Umlaufvermögen</option>
+            <option value="non-current" data-side="active">Anlagevermögen</option>
+            <option value="short-term" data-side="passive">Kurzfristiges Fremdkapital</option>
+            <option value="long-term" data-side="passive">Langfristiges Fremdkapital</option>
+            <option value="equity" data-side="passive">Eigenkapital</option>
+        </select>
 
-  <button type="submit">Buchen</button>
+        <input name="amount" type="number" step="1" placeholder="Betrag" required>
+        
+        <select name="flow" required>
+            <option value="inflow">Zunahme</option>
+            <option value="outflow">Abnahme</option>
+        </select>
 
-  <a href="/balance">
-  <button type="button">Bilanz anzeigen</button>
-  </a>
-</form>
+        <button type="submit">Verbuchen</button>
 
-<script> //make sure to only allow correct account types for account side (active/passive)
-  const sideSelect = document.getElementById("side");
-  const typeSelect = document.getElementById("type");
+        <a href="/balance">
+            <button type="button">Bilanz anzeigen</button>
+        </a>
+    </form>
 
-  function updateTypeOptions() {
-    const side = sideSelect.value;
-    for (const option of typeSelect.options) {
-      if (side === "active") {
-        option.hidden = !["current", "non-current"].includes(option.value);
-      } else {
-        option.hidden = !["short-term", "long-term", "equity"].includes(option.value);
-      }
-    }
-  }
-  sideSelect.addEventListener("change", updateTypeOptions);
-  updateTypeOptions();
-</script>
+    <script> //make sure to only allow correct account types for account side (active/passive)
+        const sideSelect = document.getElementById("side");
+        const typeSelect = document.getElementById("type");
+
+        function updateTypeOptions() {
+            const side = sideSelect.value;
+            for (const option of typeSelect.options) {
+                const optionSide = option.getAttribute('data-side');  
+                if (optionSide === null) {
+                    option.hidden = false;
+                } else if (side === "active") {
+                    option.hidden = optionSide !== "active";
+                } else if (side === "passive") {
+                    option.hidden = optionSide !== "passive";
+                } else {
+                    option.hidden = optionSide !== null;
+                }
+            }
+            if (side) {
+                typeSelect.value = "";
+            }
+        }
+        sideSelect.addEventListener("change", updateTypeOptions);
+        updateTypeOptions();
+    </script>
+</body>
+</html>
