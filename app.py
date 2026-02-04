@@ -12,7 +12,7 @@ def style(): #style for frontend
 @app.get("/balance")
 def show_balance(): #show final balance sheet
     balance_sheet.balance() #calculate profit/loss
-    return render_template("balance.html", bs=balance_sheet)
+    return render_template("balance.html", bs=balance_sheet) #pass balance_sheet
 
 @app.get("/")
 def index(): #show frontend to user
