@@ -14,7 +14,7 @@ My goal was to:
 
 ## Scope & Limitations
 
-This project simply helps with creating a balance sheet. It does **not** generate and income or cashflow statement. There is no way to find how profit/loss is based on cost/economic output for which we would need an income statement. P/L is simply based on Assets - (Liabilities+Equity). In the future I might extend this system with an Income Statement, and perhaps Cashflow functionality as well.
+This project simply helps with creating a balance sheet. It does **not** generate and income or cashflow statement. There is no way to find how profit/loss is based on cost/economic output for which we would need an income statement. P/L is simply based on *Assets - (Liabilities+Equity)*. In the future I might extend this system with an Income Statement, and perhaps Cashflow functionality as well.
 
 ## Tech Stack
 
@@ -25,4 +25,8 @@ This project simply helps with creating a balance sheet. It does **not** generat
 
 ## Project Structure
 
+-app.py: Flask web application entry point. Handles routing, processes user input, and renders HTML templates. Displays an input page for creating accounts and recording inflows/outflows. When viewing the balance sheet, it renders balance.html and computes profit or loss based on *Assets − (Liabilities + Equity)*.
+-models.py: OOP based accounting system logic (Balance sheet, passive & active accounts, overdraft handling and automatic account reclassification)
+-templates (frontend): index.html (+index.css) for user input and balance.html (+ balance.css) for presentation of balance sheet and profit/loss according to changes in assets
+-local/main.py: for testing features locally and finding bugs
 <img width="1189" height="511" alt="image" src="https://github.com/user-attachments/assets/9e47f2b9-1c62-422d-aaa8-fd3e40dedaaf" />
