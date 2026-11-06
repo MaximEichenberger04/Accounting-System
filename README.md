@@ -1,3 +1,4 @@
+<img width="1189" height="511" alt="image" src="https://github.com/user-attachments/assets/9e47f2b9-1c62-422d-aaa8-fd3e40dedaaf" /><br>
 # Simple OOP-based Accounting System
 
 This project is a simple accounting system that allows a user to create a closing balance sheet at the end of a financial year. It supports different types of balance sheet accounts (active and passive) and is based on Swiss accounting principles, which is why the user interface is in German.
@@ -29,5 +30,3 @@ This project simply helps with creating a balance sheet. It does **not** generat
 - models.py: OOP based accounting system logic (Balance sheet, passive & active accounts, overdraft handling and automatic account reclassification)
 - templates (frontend): index.html (+index.css) for user input and balance.html (+ balance.css) for presentation of balance sheet and profit/loss according to changes in assets
 - local/main.py: for testing features locally and finding bugs
-  
-<img width="1189" height="511" alt="image" src="https://github.com/user-attachments/assets/9e47f2b9-1c62-422d-aaa8-fd3e40dedaaf" />
